@@ -250,7 +250,8 @@ function create_sysimg_from_object_file(input_object::String, sysimage_path::Str
         o_file = `-Wl,--whole-archive $input_object -Wl,--no-whole-archive`
     end
     extra = Sys.iswindows() ? `-Wl,--export-all-symbols` : ``
-    run(`$(get_compiler()) -shared -L$(julia_libdir) -o $sysimage_path $o_file -ljulia $extra`)
+    bitflag = Int == Int32 ? "-m32" : "-m64"
+    run(`$(get_compiler()) -shared -L$(julia_libdir) -o $sysimage_path $o_file -ljulia $bitflag $extra`)
     return nothing
 end
 
@@ -388,7 +389,8 @@ function create_executable_from_sysimg(;sysimage_path::String,
     else
         rpath = `-Wl,-rpath,\$ORIGIN:\$ORIGIN/../lib`
     end
-    cmd = `$(get_compiler()) -DJULIAC_PROGRAM_LIBNAME=$(repr(sysimage_path)) -o $(executable_path) $(wrapper) $(sysimage_path) -O2 $rpath $flags`
+    bitflag = Int == Int32 ? "-m32" : "-m64"
+    cmd = `$(get_compiler()) -DJULIAC_PROGRAM_LIBNAME=$(repr(sysimage_path)) -o $(executable_path) $(wrapper) $(sysimage_path) -O2 $bitflag $rpath $flags`
     @debug "running $cmd"
     run(cmd)
     return nothing

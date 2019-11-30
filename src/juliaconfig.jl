@@ -35,14 +35,16 @@ function ldflags()
 end
 
 # TODO
-function ldlibs(relative_path=nothing)
+function ldlibs()
     libname = if ccall(:jl_is_debugbuild, Cint, ()) != 0
         "julia-debug"
     else
         "julia"
     end
     if Sys.islinux()
-        return "-Wl,-rpath-link,$(shell_escape(julia_libdir())) -Wl,-rpath-link,$(shell_escape(julia_private_libdir())) -l$libname"
+        return "-Wl,-rpath,$(shell_escape(julia_libdir())) -Wl,-rpath,$(shell_escape(julia_private_libdir())) " * 
+               "-L$(shell_escape(julia_libdir())) -L$(shell_escape(julia_private_libdir())) " *
+               "-l$libname"
     elseif Sys.iswindows()
         return "-l$libname -lopenlibm"
     else
