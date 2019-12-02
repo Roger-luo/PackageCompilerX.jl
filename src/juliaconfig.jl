@@ -42,9 +42,7 @@ function ldlibs()
         "julia"
     end
     if Sys.islinux()
-        return "-Wl,-rpath,$(shell_escape(julia_libdir())) -Wl,-rpath,$(shell_escape(julia_private_libdir())) " * 
-               "-L$(shell_escape(julia_libdir())) -L$(shell_escape(julia_private_libdir())) " *
-               "-l$libname"
+        return "-Wl,-rpath-link,$(shell_escape(julia_libdir())) -Wl,-rpath-link,$(shell_escape(julia_private_libdir())) -l$libname"
     elseif Sys.iswindows()
         return "-l$libname -lopenlibm"
     else
